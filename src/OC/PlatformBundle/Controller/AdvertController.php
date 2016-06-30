@@ -5,6 +5,7 @@ namespace OC\PlatformBundle\Controller;
 use OC\PlatformBundle\Entity\Advert;
 use OC\PlatformBundle\Entity\Image;
 use OC\PlatformBundle\Entity\Application;
+use OC\PlatformBundle\Entity\AdvertSkill;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -27,7 +28,10 @@ class AdvertController extends Controller
     {
         $em = $this->getDoctrine()->getManager();
 
-        $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+        $advert = $em
+                ->getRepository('OCPlatformBundle:Advert')
+                ->find($id)
+        ;
 
         if (null === $advert)
         {
@@ -39,9 +43,15 @@ class AdvertController extends Controller
                 ->findBy(array('advert' => $advert))
         ;
 
+        $listAdvertSkills = $em
+                ->getRepository('OCPlatformBundle:AdvertSkill')
+                ->findBy(array('advert' => $advert))
+        ;
+
         return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
                     'advert' => $advert,
-                    'listApplications' => $listApplications
+                    'listApplications' => $listApplications,
+                    'listAdvertSkills' => $listAdvertSkills
         ));
     }
 
@@ -68,31 +78,54 @@ class AdvertController extends Controller
 //
 //        $em->persist($advert);
 //        $em->flush();
+//        $advert = new Advert();
+//        $advert->setTitle('Recherche développeur Symfony.');
+//        $advert->setAuthor('Alexandre');
+//        $advert->setContent("Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…");
+//
+//        $application1 = new Application();
+//        $application1->setAuthor('Marine');
+//        $application1->setContent("J'ai toutes les qualités requises.");
+//        $application1->setDate(new \DateTime());
+//
+//        $application2 = new Application();
+//        $application2->setAuthor('Pierre');
+//        $application2->setContent("Je suis très motivé.");
+//        $application2->setDate(new \DateTime());
+//
+//        $application1->setAdvert($advert);
+//        $application2->setAdvert($advert);
+//
+//        $em = $this->getDoctrine()->getManager();
+//
+//        $em->persist($advert);
+//
+//        $em->persist($application1);
+//        $em->persist($application2);
+//
+//        $em->flush();
+
+        $em = $this->getDoctrine()->getManager();
 
         $advert = new Advert();
         $advert->setTitle('Recherche développeur Symfony.');
         $advert->setAuthor('Alexandre');
         $advert->setContent("Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…");
 
-        $application1 = new Application();
-        $application1->setAuthor('Marine');
-        $application1->setContent("J'ai toutes les qualités requises.");
-        $application1->setDate(new \DateTime());
+        $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
 
-        $application2 = new Application();
-        $application2->setAuthor('Pierre');
-        $application2->setContent("Je suis très motivé.");
-        $application2->setDate(new \DateTime());
+        foreach ($listSkills as $skill)
+        {
+            $advertSkill = new AdvertSkill();
 
-        $application1->setAdvert($advert);
-        $application2->setAdvert($advert);
+            $advertSkill->setAdvert($advert);
+            $advertSkill->setSkill($skill);
+            $advertSkill->setLevel('Expert');
 
-        $em = $this->getDoctrine()->getManager();
+            $em->persist($advertSkill);
+        }
 
         $em->persist($advert);
-
-        $em->persist($application1);
-        $em->persist($application2);
 
         $em->flush();
         return $this->render('OCPlatformBundle:Advert:add.html.twig');
