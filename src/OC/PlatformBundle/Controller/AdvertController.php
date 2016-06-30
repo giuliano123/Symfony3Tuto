@@ -2,6 +2,7 @@
 
 namespace OC\PlatformBundle\Controller;
 
+use OC\PlatformBundle\Entity\Advert;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
@@ -22,14 +23,10 @@ class AdvertController extends Controller
 
     public function viewAction($id)
     {
-        $advert = array(
-            'title' => 'Recherche développpeur Symfony2',
-            'id' => $id,
-            'author' => 'Alexandre',
-            'content' => 'Nous recherchons un développeur Symfony2 débutant sur Lyon. Blabla…',
-            'date' => new \Datetime()
-        );
+        $repository = $this->getDoctrine()->getManager()->getRepository('OCPlatformBundle:Advert');
 
+        $advert = $repository->find($id);
+        
         return $this->render('OCPlatformBundle:Advert:view.html.twig', array(
                     'advert' => $advert
         ));
@@ -42,10 +39,16 @@ class AdvertController extends Controller
             $request->getSession()->getFlashBag()->add('notice', 'Annonce bien enregistrée.');
             return $this->redirectToRoute('oc_platform_view', array('id' => 5));
         }
-        $antispam = $this->container->get('oc_platform.antispam');
-        $text = "";
-        if ($antispam->isSpam($text))
-            throw new \Exception ('Votre message a été détecté comme spam !');
+        
+        $advert = new Advert();
+        $advert->setTitle('Recherche développeur Symfony.');
+        $advert->setAuthor('Alexandre');
+        $advert->setContent("Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…");
+        
+        $em = $this->getDoctrine()->getManager();
+        $em->persist($advert);
+        $em->flush();
+        
         return $this->render('OCPlatformBundle:Advert:add.html.twig');
     }
 
