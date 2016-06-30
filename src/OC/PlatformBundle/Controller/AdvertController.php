@@ -106,13 +106,24 @@ class AdvertController extends Controller
             return $this->redirectToRoute('oc_platform_view', array('id' => 5));
         }
 
-        $advert = array(
-            'title' => 'Recherche développpeur Symfony',
-            'id' => $id,
-            'author' => 'Alexandre',
-            'content' => 'Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…',
-            'date' => new \Datetime()
-        );
+        $em = $this->getDoctrine()->getManager();
+
+        $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+
+        if (null === $advert)
+        {
+            throw new NotFoundHttpException("L'annonce d'id " . $id . " n'existe pas.");
+        }
+
+        $listCategories = $em->getRepository('OCPlatformBundle:Category')->findAll();
+
+        foreach ($listCategories as $category)
+        {
+            $advert->addCategory($category);
+        }
+
+        $em->flush();
+
 
         return $this->render('OCPlatformBundle:Advert:edit.html.twig', array(
                     'advert' => $advert
@@ -121,6 +132,22 @@ class AdvertController extends Controller
 
     public function deleteAction($id)
     {
+        $em = $this->getDoctrine()->getManager();
+
+        $advert = $em->getRepository('OCPlatformBundle:Advert')->find($id);
+
+        if (null === $advert)
+        {
+            throw new NotFoundHttpException("L'annonce d'id " . $id . " n'existe pas.");
+        }
+
+        foreach ($advert->getCategories() as $category)
+        {
+            $advert->removeCategory($category);
+        }
+
+        $em->flush();
+
         return $this->render('OCPlatformBundle:Advert:delete.html.twig');
     }
 
