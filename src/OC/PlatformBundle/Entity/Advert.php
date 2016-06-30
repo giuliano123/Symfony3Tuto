@@ -12,6 +12,7 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class Advert
 {
+
     /**
      * @var int
      *
@@ -48,18 +49,24 @@ class Advert
      * @ORM\Column(name="content", type="string", length=255)
      */
     private $content;
-    
+
     /**
      * @ORM\Column(name="published", type="boolean")
      */
     private $published = true;
-    
+
+    /**
+     * @ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", cascade={"persist"})
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $image;
+
     public function __construct()
     {
         $this->date = new \DateTime();
     }
 
-        /**
+    /**
      * Get id
      *
      * @return int
@@ -187,5 +194,30 @@ class Advert
     public function getPublished()
     {
         return $this->published;
+    }
+
+
+    /**
+     * Set image
+     *
+     * @param \OC\PlatformBundle\Entity\Image $image
+     *
+     * @return Advert
+     */
+    public function setImage(\OC\PlatformBundle\Entity\Image $image)
+    {
+        $this->image = $image;
+
+        return $this;
+    }
+
+    /**
+     * Get image
+     *
+     * @return \OC\PlatformBundle\Entity\Image
+     */
+    public function getImage()
+    {
+        return $this->image;
     }
 }
