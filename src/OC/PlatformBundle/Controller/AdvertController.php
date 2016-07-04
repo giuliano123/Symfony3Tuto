@@ -87,53 +87,53 @@ class AdvertController extends Controller
 //        $em->persist($advert);
         
         
-        $advert = new Advert();
-        $advert->setTitle('Recherche développeur Symfony.');
-        $advert->setAuthor('Alexandre');
-        $advert->setContent("Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…");
-
-        $application1 = new Application();
-        $application1->setAuthor('Marine');
-        $application1->setContent("J'ai toutes les qualités requises.");
-        $application1->setDate(new \DateTime());
-
-        $application2 = new Application();
-        $application2->setAuthor('Pierre');
-        $application2->setContent("Je suis très motivé.");
-        $application2->setDate(new \DateTime());
-
-        $application1->setAdvert($advert);
-        $application2->setAdvert($advert);
-
-        $em = $this->getDoctrine()->getManager();
-
-        $em->persist($advert);
-
-        $em->persist($application1);
-        $em->persist($application2);
-//
-
-//        $em = $this->getDoctrine()->getManager();
-//
 //        $advert = new Advert();
 //        $advert->setTitle('Recherche développeur Symfony.');
 //        $advert->setAuthor('Alexandre');
 //        $advert->setContent("Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…");
 //
-//        $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+//        $application1 = new Application();
+//        $application1->setAuthor('Marine');
+//        $application1->setContent("J'ai toutes les qualités requises.");
+//        $application1->setDate(new \DateTime());
 //
-//        foreach ($listSkills as $skill)
-//        {
-//            $advertSkill = new AdvertSkill();
+//        $application2 = new Application();
+//        $application2->setAuthor('Pierre');
+//        $application2->setContent("Je suis très motivé.");
+//        $application2->setDate(new \DateTime());
 //
-//            $advertSkill->setAdvert($advert);
-//            $advertSkill->setSkill($skill);
-//            $advertSkill->setLevel('Expert');
+//        $application1->setAdvert($advert);
+//        $application2->setAdvert($advert);
 //
-//            $em->persist($advertSkill);
-//        }
+//        $em = $this->getDoctrine()->getManager();
 //
 //        $em->persist($advert);
+//
+//        $em->persist($application1);
+//        $em->persist($application2);
+//
+
+        $em = $this->getDoctrine()->getManager();
+
+        $advert = new Advert();
+        $advert->setTitle('Recherche développeur Symfony.');
+        $advert->setAuthor('Alexandre');
+        $advert->setContent("Nous recherchons un développeur Symfony débutant sur Lyon. Blabla…");
+
+        $listSkills = $em->getRepository('OCPlatformBundle:Skill')->findAll();
+
+        foreach ($listSkills as $skill)
+        {
+            $advertSkill = new AdvertSkill();
+
+            $advertSkill->setAdvert($advert);
+            $advertSkill->setSkill($skill);
+            $advertSkill->setLevel('Expert');
+
+            $em->persist($advertSkill);
+        }
+
+        $em->persist($advert);
 
         $em->flush();
         return $this->render('OCPlatformBundle:Advert:add.html.twig');

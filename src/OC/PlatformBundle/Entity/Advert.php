@@ -2,6 +2,7 @@
 
 namespace OC\PlatformBundle\Entity;
 
+use Gedmo\Mapping\Annotation as Gedmo;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -67,8 +68,14 @@ class Advert
     private $nbApplications = 0;
 
     /**
+     * @Gedmo\Slug(fields={"title"})
+     * @ORM\Column(name="slug", type="string", length=255, unique=true)
+     */
+    private $slug;
+
+    /**
      * @ORM\OneToOne(targetEntity="OC\PlatformBundle\Entity\Image", cascade={"persist"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $image;
 
@@ -224,7 +231,7 @@ class Advert
      *
      * @return Advert
      */
-    public function setImage(\OC\PlatformBundle\Entity\Image $image)
+    public function setImage(\OC\PlatformBundle\Entity\Image $image = null)
     {
         $this->image = $image;
 
@@ -353,7 +360,6 @@ class Advert
         $this->nbApplications--;
     }
 
-
     /**
      * Set nbApplications
      *
@@ -376,5 +382,30 @@ class Advert
     public function getNbApplications()
     {
         return $this->nbApplications;
+    }
+
+
+    /**
+     * Set slug
+     *
+     * @param string $slug
+     *
+     * @return Advert
+     */
+    public function setSlug($slug)
+    {
+        $this->slug = $slug;
+
+        return $this;
+    }
+
+    /**
+     * Get slug
+     *
+     * @return string
+     */
+    public function getSlug()
+    {
+        return $this->slug;
     }
 }
