@@ -9,6 +9,7 @@ use Doctrine\ORM\Mapping as ORM;
  *
  * @ORM\Table(name="application")
  * @ORM\Entity(repositoryClass="OC\PlatformBundle\Repository\ApplicationRepository")
+ * @ORM\HasLifecycleCallbacks()
  */
 class Application
 {
@@ -131,7 +132,6 @@ class Application
         return $this->date;
     }
 
-
     /**
      * Set advert
      *
@@ -155,4 +155,21 @@ class Application
     {
         return $this->advert;
     }
+
+    /**
+     * @ORM\PrePersist
+     */
+    public function increase()
+    {
+        $this->getAdvert()->increaseApplication();
+    }
+
+    /**
+     * @ORM\PreRemove
+     */
+    public function decrease()
+    {
+        $this->getAdvert()->decreaseApplication();
+    }
+
 }
