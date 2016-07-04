@@ -6,13 +6,14 @@
 
 {% block ocplatform_body %}
 
-    <h2>
-        {# On vérifie qu'une image soit bien associée à l'annonce #}
+    <div style="float: left; margin-right: 1em;">
+        {# On vérifie qu'une image soit bien associée à l'article #}
         {% if advert.image is not null %}
-            <img src="{{ advert.image.url }}" alt="{{ advert.image.alt }}">
+            <img src="{{ advert.image.url }}" alt="{{ advert.image.alt }}" height="60">
         {% endif %}
-        {{ advert.title }}
-    </h2>
+    </div>
+
+    <h2>{{ advert.title }}</h2>
     <i>Par {{ advert.author }}, le {{ advert.date|date('d/m/Y') }}</i>
 
     <div class="well">

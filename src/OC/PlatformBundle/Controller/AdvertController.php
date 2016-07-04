@@ -19,8 +19,16 @@ class AdvertController extends Controller
         {
             throw new NotFoundHttpException('Page "' . $page . '" inexistante.');
         }
+        $repository = $this
+                ->getDoctrine()
+                ->getManager()
+                ->getRepository('OCPlatformBundle:Advert')
+        ;
+
+        $listAdverts = $repository->myFindAll();
+        
         return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
-                    'listAdverts' => array()
+                    'listAdverts' => $listAdverts
         ));
     }
 
@@ -30,7 +38,7 @@ class AdvertController extends Controller
 
         $advert = $em
                 ->getRepository('OCPlatformBundle:Advert')
-                ->find($id)
+                ->myFindOne($id)
         ;
 
         if (null === $advert)
