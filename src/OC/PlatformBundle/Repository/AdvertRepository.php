@@ -2,6 +2,8 @@
 
 namespace OC\PlatformBundle\Repository;
 
+use Doctrine\ORM\Tools\Pagination\Paginator;
+
 /**
  * AdvertRepository
  *
@@ -10,4 +12,94 @@ namespace OC\PlatformBundle\Repository;
  */
 class AdvertRepository extends \Doctrine\ORM\EntityRepository
 {
+
+    public function myFindAll()
+    {
+        $queryBuilder = $this->_em->createQueryBuilder()
+                ->select('a')
+                ->from($this->_entityName, 'a');
+
+        $queryBuilder = $this->createQueryBuilder('a');
+
+        $query = $queryBuilder->getQuery();
+        $results = $query->getResult();
+        return $results;
+    }
+
+    public function myFindOne($id)
+    {
+        $qb = $this->createQueryBuilder('a')
+                ->where('a.id = :id')
+                ->setParameter('id', $id);
+
+        return $qb->getQuery()->getSingleResult();
+    }
+
+    public function whereCurrentYear(QueryBuilder $qb)
+    {
+        $qb
+                ->andWhere('a.date BETWEEN :start AND :end')
+                ->setParameter('start', new \Datetime(date('Y') . '-01-01'))
+                ->setParameter('end', new \Datetime(date('Y') . '-12-31'));
+    }
+
+    public function getAdvertWithApplications()
+    {
+        $qb = $this
+                ->createQueryBuilder('a')
+                ->leftJoin('a.applications', 'app')
+                ->addSelect('app')
+        ;
+
+        return $qb
+                        ->getQuery()
+                        ->getResult()
+        ;
+    }
+
+    public function getAdvertWithCategories(array $categoryNames)
+    {
+        $qb = $this->createQueryBuilder('a');
+
+        $qb->join('a.categories', 'c')
+                ->addSelect('c');
+
+        $qb->where($qb->expr()->in('c.name', $categoryNames));
+
+        return $qb
+                        ->getQuery()
+                        ->getResult()
+        ;
+    }
+
+    public function getAdverts($page, $nbPerPage)
+    {
+        $query = $this->createQueryBuilder('a')
+                ->leftJoin('a.image', 'i')
+                ->addSelect('i')
+                ->leftJoin('a.categories', 'c')
+                ->addSelect('c')
+                ->orderBy('a.date', 'DESC')
+                ->getQuery()
+        ;
+        $query
+                ->setFirstResult(($page - 1) * $nbPerPage)
+                ->setMaxResults($nbPerPage)
+        ;
+
+        return new Paginator($query, true);
+    }
+
+    public function getAdvertsBefore(\DateTime $date)
+    {
+        return $this->createQueryBuilder('a')
+                        ->where('a.updatedAt <= :date')
+                        ->orWhere('a.updatedAt IS NULL AND a.date <= :date')
+                        ->andWhere('a.applications IS EMPTY')
+                        ->setParameter('date', $date)
+                        ->getQuery()
+                        ->getResult()
+        ;
+    }
+
 }
