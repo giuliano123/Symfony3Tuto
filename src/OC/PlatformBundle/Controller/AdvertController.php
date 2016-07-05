@@ -19,16 +19,25 @@ class AdvertController extends Controller
         {
             throw new NotFoundHttpException('Page "' . $page . '" inexistante.');
         }
-        $repository = $this
-                ->getDoctrine()
+
+        $nbPerPage = 3;
+
+        $listAdverts = $this->getDoctrine()
                 ->getManager()
                 ->getRepository('OCPlatformBundle:Advert')
-        ;
+                ->getAdverts($page, $nbPerPage);
 
-        $listAdverts = $repository->myFindAll();
-        
+        $nbPages = ceil(count($listAdverts) / $nbPerPage);
+
+        if ($page > $nbPages)
+        {
+            throw $this->createNotFoundException("La page " . $page . " n'existe pas.");
+        }
+
         return $this->render('OCPlatformBundle:Advert:index.html.twig', array(
-                    'listAdverts' => $listAdverts
+                    'listAdverts' => $listAdverts,
+                    'nbPages' => $nbPages,
+                    'page' => $page,
         ));
     }
 
@@ -85,8 +94,6 @@ class AdvertController extends Controller
 //        $em = $this->getDoctrine()->getManager();
 //
 //        $em->persist($advert);
-        
-        
 //        $advert = new Advert();
 //        $advert->setTitle('Recherche développeur Symfony.');
 //        $advert->setAuthor('Alexandre');
@@ -192,12 +199,12 @@ class AdvertController extends Controller
         return $this->render('OCPlatformBundle:Advert:delete.html.twig');
     }
 
-    public function menuAction()
+    public function menuAction($limit)
     {
-        $listAdverts = array(
-            array('id' => 2, 'title' => 'Recherche développeur Symfony'),
-            array('id' => 5, 'title' => 'Mission de webmaster'),
-            array('id' => 9, 'title' => 'Offre de stage webdesigner')
+        $em = $this->getDoctrine()->getManager();
+
+        $listAdverts = $em->getRepository('OCPlatformBundle:Advert')->findBy(
+                array(), array('date' => 'desc'), $limit, 0
         );
 
         return $this->render('OCPlatformBundle:Advert:menu.html.twig', array(

@@ -2,6 +2,8 @@
 
 namespace OC\PlatformBundle\Repository;
 
+use Doctrine\ORM\Tools\Pagination\Paginator;
+
 /**
  * AdvertRepository
  *
@@ -69,4 +71,35 @@ class AdvertRepository extends \Doctrine\ORM\EntityRepository
                         ->getResult()
         ;
     }
+
+    public function getAdverts($page, $nbPerPage)
+    {
+        $query = $this->createQueryBuilder('a')
+                ->leftJoin('a.image', 'i')
+                ->addSelect('i')
+                ->leftJoin('a.categories', 'c')
+                ->addSelect('c')
+                ->orderBy('a.date', 'DESC')
+                ->getQuery()
+        ;
+        $query
+                ->setFirstResult(($page - 1) * $nbPerPage)
+                ->setMaxResults($nbPerPage)
+        ;
+
+        return new Paginator($query, true);
+    }
+
+    public function getAdvertsBefore(\DateTime $date)
+    {
+        return $this->createQueryBuilder('a')
+                        ->where('a.updatedAt <= :date')
+                        ->orWhere('a.updatedAt IS NULL AND a.date <= :date')
+                        ->andWhere('a.applications IS EMPTY')
+                        ->setParameter('date', $date)
+                        ->getQuery()
+                        ->getResult()
+        ;
+    }
+
 }

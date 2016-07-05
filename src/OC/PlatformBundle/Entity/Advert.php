@@ -92,6 +92,8 @@ class Advert
     public function __construct()
     {
         $this->date = new \DateTime();
+        $this->categories = new ArrayCollection();
+        $this->applications = new ArrayCollection();
     }
 
     /**
@@ -384,7 +386,6 @@ class Advert
         return $this->nbApplications;
     }
 
-
     /**
      * Set slug
      *
@@ -408,4 +409,5 @@ class Advert
     {
         return $this->slug;
     }
+
 }
